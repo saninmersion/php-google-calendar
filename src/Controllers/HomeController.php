@@ -2,26 +2,27 @@
 
 namespace PhpGoogleCalendar\Controllers;
 
+use Google\Client;
 use Jenssegers\Blade\Blade;
-use PhpGoogleCalendar\Services\GoogleClient;
+use PhpGoogleCalendar\Services\GoogleClientService;
 
 class HomeController
 {
-    protected $blade;
-    protected $client;
+    protected Blade  $blade;
+    protected Client $client;
 
     public function __construct()
     {
         $this->blade = new Blade('views', 'cache');
 
-        $googleClient = new GoogleClient();
+        $googleClient = new GoogleClientService();
         $this->client = $googleClient->getClient();
     }
 
     public function index()
     {
         if ( isset($_SESSION['access_token']) && $_SESSION['access_token'] ) {
-            header('Location: /events');
+            redirectTo('/events');
         };
 
         if ( !isset($_GET['code']) ) {
@@ -34,7 +35,7 @@ class HomeController
             $this->client->fetchAccessTokenWithAuthCode($_GET['code']);
             $_SESSION['access_token'] = $this->client->getAccessToken();
 
-            header('Location: /events');
+            redirectTo('/events');
         }
     }
 
@@ -42,6 +43,6 @@ class HomeController
     {
         session_destroy();
 
-        header('Location: /');
+        redirectTo('/');
     }
 }

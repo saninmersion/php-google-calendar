@@ -6,11 +6,12 @@ use Google\Client;
 use Google\Exception;
 use Google_Service_Calendar;
 
-class GoogleClient
+class GoogleClientService
 {
     private Client $client;
 
     /**
+     * GoogleClientService constructor.
      * @throws Exception
      */
     public function __construct() {
@@ -22,6 +23,11 @@ class GoogleClient
         $this->client->setPrompt('select_account consent');
     }
 
+    /**
+     * Get the Google client instance.
+     *
+     * @return Client
+     */
     public function getClient(): Client
     {
         return $this->client;

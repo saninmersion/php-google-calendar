@@ -4,91 +4,94 @@ namespace PhpGoogleCalendar\Controllers;
 
 use Google\Service\Exception;
 use Jenssegers\Blade\Blade;
-use PhpGoogleCalendar\Helpers\CommonHelper;
 use PhpGoogleCalendar\Services\EventManagerService;
 
 class EventController
 {
-    protected $blade;
+    protected Blade $blade;
 
     public function __construct()
     {
         $this->blade = new Blade('views/events', 'cache');
     }
 
-    /**
-     */
-    public function index()
+    public function index(): void
     {
-        $accessToken = $_SESSION['access_token'];
+        $accessToken = $_SESSION['access_token'] ?? null;
+
+        if (!$accessToken) {
+            $this->redirectTo('/');
+            return;
+        }
 
         try {
-            if ( isset($accessToken) && $accessToken ) {
-                $eventManager = new EventManagerService($accessToken);
-                $events       = $eventManager->fetchEvents();
+            $eventManager = new EventManagerService($accessToken);
+            $events = $eventManager->fetchEvents();
 
-                if ( empty($events) ) {
-                    echo "No upcoming events found.";
-                }
-                else {
-                    echo $this->blade->make('list', ['events' => $events])->render();
-                }
-            }
-            else {
-                header('Location: /');
+            if (empty($events)) {
+                echo "No upcoming events found.";
+            } else {
+                echo $this->blade->make('list', ['events' => $events])->render();
             }
         } catch (\Exception $exception) {
-            if ( $exception->getCode() === 401 ) {
-                header('Location: /');
+            if ($exception->getCode() === 401) {
+                $this->redirectTo('/');
             }
         }
     }
 
     /**
      * @throws Exception
+     * @throws \Exception
      */
-    public function store()
+    public function store(): void
     {
-        $eventStartTime = convertDateTime($_POST['event_date'], $_POST['start_time']);
-        $eventEndTime   = convertDateTime($_POST['event_date'], $_POST['end_time']);
+        $accessToken = $_SESSION['access_token'] ?? null;
 
-        $accessToken = $_SESSION['access_token'];
-
-        if ( isset($accessToken) && $accessToken ) {
-            if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
-                $eventManager = new EventManagerService($accessToken);
-                $eventManager->createEvent($_POST['title'], $eventStartTime, $eventEndTime, $_POST['timezone']);
-            }
-            header('Location: /events');
+        if (!$accessToken) {
+            $this->redirectTo('/');
+            return;
         }
-        else {
-            header('Location: /');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $eventStartTime = convertDateTime($_POST['event_date'], $_POST['start_time']);
+            $eventEndTime = convertDateTime($_POST['event_date'], $_POST['end_time']);
+
+            $eventManager = new EventManagerService($accessToken);
+            $eventManager->createEvent($_POST['title'], $eventStartTime, $eventEndTime, $_POST['timezone']);
+        }
+
+        $this->redirectTo('/events');
+    }
+
+    public function delete(): void
+    {
+        $accessToken = $_SESSION['access_token'] ?? null;
+
+        if (!$accessToken) {
+            $this->redirectTo('/');
+            return;
+        }
+
+        try {
+            $eventManager = new EventManagerService($accessToken);
+
+            if (isset($_GET['id'])) {
+                $eventId = $_GET['id'];
+                $eventManager->deleteEvent($eventId);
+            }
+
+            $this->redirectTo('/events');
+        } catch (\Exception $exception) {
+            if ($exception->getCode() === 401) {
+                $this->redirectTo('/');
+            }
         }
     }
 
-    public function delete()
+    private function redirectTo(string $url): void
     {
-        $accessToken = $_SESSION['access_token'];
-
-        try {
-            if ( isset($accessToken) && $accessToken ) {
-                $eventManager = new EventManagerService($accessToken);
-
-                if ( isset($_GET['id']) ) {
-                    $eventId = $_GET['id'];
-
-                    $eventManager->deleteEvent($eventId);
-
-                }
-                header('Location: /events');
-            }
-            else {
-                header('Location: /');
-            }
-        } catch (\Exception $exception) {
-            if ( $exception->getCode() === 401 ) {
-                header('Location: /');
-            }
-        }
+        header('Location: ' . $url);
+        exit();
     }
 }

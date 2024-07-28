@@ -8,6 +8,14 @@ if ( !function_exists('dd') ) {
     }
 }
 
+if ( !function_exists('redirectTo') ) {
+    function redirectTo(string $url): void
+    {
+        header('Location: '.$url);
+        exit();
+    }
+}
+
 
 if ( !function_exists('convertDateTime') ) {
     /**
