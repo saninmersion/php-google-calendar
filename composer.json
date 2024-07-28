@@ -1,0 +1,24 @@
+{
+    "name": "sandipshrestha/php-google-calendar",
+    "description": "A test project for google calendar api",
+    "autoload": {
+        "psr-4": {
+            "PhpGoogleCalendar\\": "src/"
+        },
+        "files": [
+            "src/Helpers/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Sandip Shrestha",
+            "email": "sandipshrestha2052@gmail.com"
+        }
+    ],
+    "require": {
+        "bramus/router": "^1.6",
+        "jenssegers/blade": "^2.0",
+        "illuminate/view": "11.7.0",
+        "google/apiclient": "^2.0"
+    }
+}
