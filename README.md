@@ -18,7 +18,7 @@ You will need to put a credentials.json file inside `config` folder for the appl
         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
         "token_uri": "https://oauth2.googleapis.com/token",
         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_secret": "client_secret",
+        "client_secret": "client_secret![img.png](img.png)",
         "redirect_uris": [
             "http://localhost:8000"
         ]
@@ -27,3 +27,7 @@ You will need to put a credentials.json file inside `config` folder for the appl
 ```
 
 **_Note:_** You can get your own Google Calendar Api credentials from the google api console. 
+
+## Demo Video
+[Application demo video](demo%2Fdemo.m4v)
+
